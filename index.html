@@ -13,10 +13,14 @@
             backdrop-filter: blur(16px);
             border: 1px solid rgba(255, 255, 255, 0.1);
         }
+        .active-module {
+            border-color: rgba(251, 191, 36, 0.8) !important;
+            box-shadow: 0 0 20px rgba(251, 191, 36, 0.2);
+        }
     </style>
     <style>
         *, ::before, ::after { box-sizing: border-box; border-width: 0; border-style: solid; border-color: #e5e7eb; }
-        html, body { line-height: 1.5; font-family: ui-sans-serif, system-ui, sans-serif; }
+        html, body { line-height: 1.5; font-family: ui-sans-serif, system-ui, sans-serif; scroll-behavior: smooth; }
         body { margin: 0; min-height: 100vh; display: flex; flex-direction: column; justify-content: space-between; }
         .mx-auto { margin-left: auto; margin-right: auto; }
         .mb-12 { margin-bottom: 3rem; }
@@ -100,7 +104,7 @@
 
         <div class="grid grid-cols-1 md:grid-cols-2 gap-8 mb-12">
             <!-- Module 1: Revenue Simulator Modeller -->
-            <a href="revenue-modeller.html" target="portal-viewer" class="glass-card p-8 rounded-2xl block hover:border-amber-400/50 transition duration-300">
+            <a href="revenue-modeller.html" target="portal-viewer" onclick="focusViewer()" class="glass-card p-8 rounded-2xl block hover:border-amber-400/50 transition duration-300">
                 <div class="w-12 h-12 bg-amber-400/10 text-amber-400 rounded-xl flex items-center justify-center text-xl mb-4">
                     <i class="fa-solid fa-calculator"></i>
                 </div>
@@ -114,7 +118,7 @@
             </a>
 
             <!-- Module 2: Executive Strategic Briefing -->
-            <a href="strategic-briefing.html" target="portal-viewer" class="glass-card p-8 rounded-2xl block hover:border-emerald-400/50 transition duration-300">
+            <a href="strategic-briefing.html" target="portal-viewer" onclick="focusViewer()" class="glass-card p-8 rounded-2xl block hover:border-emerald-400/50 transition duration-300">
                 <div class="w-12 h-12 bg-emerald-400/10 text-emerald-400 rounded-xl flex items-center justify-center text-xl mb-4">
                     <i class="fa-solid fa-file-contract"></i>
                 </div>
@@ -129,8 +133,9 @@
         </div>
 
         <!-- Embedded Interactive Viewer Container -->
-        <div class="w-full">
+        <div id="viewer-container" class="w-full">
             <iframe 
+                id="portal-iframe"
                 name="portal-viewer" 
                 src="revenue-modeller.html" 
                 title="Executive Portal Viewer"
@@ -144,6 +149,33 @@
     <footer class="border-t border-white/10 py-6 text-center text-xs text-slate-500">
         © 2026 Hongjiali BioSolar Microgrids. All Rights Reserved.
     </footer>
+
+    <!-- Audio Synchronization & Focus Logic -->
+    <script>
+        function focusViewer() {
+            setTimeout(() => {
+                const viewer = document.getElementById('viewer-container');
+                if (viewer) {
+                    viewer.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                }
+            }, 100);
+        }
+
+        // Listen for section narration events sent from inside the iframe
+        window.addEventListener('message', function(event) {
+            if (event.data && event.data.type === 'NARRATION_SCROLL') {
+                const iframe = document.getElementById('portal-iframe');
+                if (iframe) {
+                    // Smoothly adjust parent frame position as narration advances
+                    const viewerOffset = iframe.getBoundingClientRect().top + window.pageYOffset;
+                    window.scrollTo({
+                        top: viewerOffset + event.data.offsetY - 100,
+                        behavior: 'smooth'
+                    });
+                }
+            }
+        });
+    </script>
 
 </body>
 </html>
